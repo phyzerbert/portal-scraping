@@ -80,10 +80,11 @@ class CompanyController extends Controller
                 $url = $item->avatar_image;
                 $info = pathinfo($url);
                 $contents = file_get_contents($url);
+                $extension = isset($info['extension']) ? $info['extension'] : 'jpg';
                 $new_file_name = $item->username."_marijuana_".time();
-                $file = public_path('avatar/'.$new_file_name.".".$info['extension']);
+                $file = public_path('avatar/'.$new_file_name.".".$extension);
                 file_put_contents($file, $contents);  
-                $item->update(['image' => $new_file_name.".".$info['extension']]);
+                $item->update(['image' => $new_file_name.".".$extension]);
             }
         }
     }
