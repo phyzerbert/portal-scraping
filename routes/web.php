@@ -12,3 +12,4 @@
 */
 
 Route::get('/', 'CompanyController@getCompanies');
+Route::get('/download_images', 'CompanyController@downloadImages');

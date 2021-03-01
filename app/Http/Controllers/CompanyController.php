@@ -59,7 +59,7 @@ class CompanyController extends Controller
                         'avatar_image' => $avatar_image,
                         'web_url' => $item['web_url'],
                         'recreational' => $item['license_type'] == 'hybrid' || $item['license_type'] == 'recreational' ? 1 : 0,
-                        'medical' => $item['license_type'] == 'medical' || $item['license_type'] == 'medical' ? 1 : 0,
+                        'medical' => $item['license_type'] == 'hybrid' || $item['license_type'] == 'medical' ? 1 : 0,
                         'description' => strip_tags($item['intro_body']),
                     ]);  
                 }
@@ -69,5 +69,17 @@ class CompanyController extends Controller
         }
         
         dd('Successfully Done');
+    }
+    public function downloadImages(Request $request) {
+        $companies = Company::all();
+        foreach ($companies as $item) {
+            if($item->avatar_image != '') {           
+                $url = 'https://images.weedmaps.com/dispensaries/000/046/471/avatar/original/1589492909-Screen_Shot_2020-05-14_at_2.46.50_PM.png';
+                $info = pathinfo($url);
+                $contents = file_get_contents($url);
+                $file = public_path('avatar/' . $info['basename']);
+                file_put_contents($file, $contents);  
+            }
+        }
     }
 }
