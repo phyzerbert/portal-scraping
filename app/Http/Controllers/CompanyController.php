@@ -112,8 +112,17 @@ class CompanyController extends Controller
 
     public function getAttributes(Request $request) {
         ini_set('max_execution_time', '0');
-        $companies = Company::all();
-        // $companies = Company::where('id', '>=', 14)->where('id', '<=', 15)->get();
+
+        $user_agents = array(
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36",
+            "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:86.0) Gecko/20100101 Firefox/86.0",
+            "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36 Edg/88.0.705.81",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36 OPR/74.0.3911.187",
+        );
+        // $companies = Company::all();
+        $companies = Company::where('id', '>=', 36)->where('id', '<=', 100)->get();
         foreach ($companies as $item) {            
             $url = $item->web_url;
             $curl = curl_init();
@@ -128,7 +137,7 @@ class CompanyController extends Controller
                 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                 CURLOPT_CUSTOMREQUEST => 'GET',
                 CURLOPT_HTTPHEADER => array(
-                    'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:86.0) Gecko/20100101 Firefox/86.0',
+                    "User-Agent: ".array_rand($user_agents),
                     'Cookie: ajs_anonymous_id=%22d0377bd5-5fd8-4627-ac57-d417a8c33602%22; _pxhd=ca83b03c28a08347564a5e24a841db206c0c63d6c10c80ae2040e5064e9e2762:031d1b90-34e0-11eb-bd4f-19dade27ea77'
                 ),
             ));
@@ -143,7 +152,7 @@ class CompanyController extends Controller
             $dom->loadStr($response);
             $script_tag = $dom->getElementById('__NEXT_DATA__');
             // dump($script_tag); continue;
-            if($script_tag == null) break;
+            if($script_tag == null) {dd('Blocked Requestes');};
             if($script_tag && $script_tag->text) {
                 $response_data = json_decode($script_tag->text, true);
                 if(isset($response_data['props']) && isset($response_data['props']['storeInitialState'])) {
