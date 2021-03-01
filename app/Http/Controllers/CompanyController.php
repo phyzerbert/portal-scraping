@@ -124,7 +124,11 @@ class CompanyController extends Controller
         );
         // $companies = Company::all();
         $companies = Company::where('id', '>=', 803)->where('id', '<=', 2000)->get();
-        foreach ($companies as $item) {            
+        $this->changeIpAddress();
+        foreach ($companies as $item) {
+            if(fmod($item->id, 10)) {
+                $this->changeIpAddress();
+            }
             $url = $item->web_url;
             $curl = curl_init();
             $proxy = 'de9.proxidize.com:40131';
@@ -258,5 +262,21 @@ class CompanyController extends Controller
             $hour = null;
         }
         return $hour;
+    }
+
+    public function changeIpAddress(Request $request) {
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => 'https://trigger.macrodroid.com/9b00f894-38a8-465d-b740-c70ac0ef8c81/ip',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'GET',
+        ));
+        $response = curl_exec($curl);
+        curl_close($curl);
     }
 }
