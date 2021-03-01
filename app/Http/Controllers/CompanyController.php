@@ -32,7 +32,7 @@ class CompanyController extends Controller
             $response = curl_exec($curl);
             curl_close($curl);
             $result = json_decode($response, true);
-            if($result['data']) {
+            if(isset($result['data'])) {
                 $companies = $result['data']['listings'];
                 foreach ($companies as $item) {
                     if($item['package_level'] != 'free') {
@@ -76,12 +76,27 @@ class CompanyController extends Controller
         $companies = Company::all();
         foreach ($companies as $item) {
             if($item->avatar_image != '') {           
-                $url = 'https://images.weedmaps.com/dispensaries/000/046/471/avatar/original/1589492909-Screen_Shot_2020-05-14_at_2.46.50_PM.png';
+                $url = $item->avatar_image;
                 $info = pathinfo($url);
                 $contents = file_get_contents($url);
-                $file = public_path('avatar/' . $info['basename']);
+                $new_file_name = $item->username."_marijuana_".time();
+                $file = public_path('avatar/'.$new_file_name.".".$info['extension']);
                 file_put_contents($file, $contents);  
+                $item->update(['image' => $new_file_name.".".$info['extension']]);
             }
         }
+    }
+
+    public function checkDuplicates(Request $request) {
+        $companies = Company::all();
+        foreach ($companies as $item) {
+            $info = pathinfo($item->avatar_image);
+            $filename = $info['basename'];
+            $count = Company::where('avatar_image', 'like',"%$filename%")->count();
+            if($count > 1) {
+                dump("Duplicates $count    ".$filename);
+            }
+        }
+        dump('Done');
     }
 }

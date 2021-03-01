@@ -21,6 +21,7 @@ class CreateCompaniesTable extends Migration
             $table->string('email')->nullable();
             $table->string('password')->nullable();
             $table->text('avatar_image')->nullable();
+            $table->text('image')->nullable();
             $table->text('web_url')->nullable();
             $table->integer('role_id')->nullable();
             $table->longtext('description')->nullable();
