@@ -59,7 +59,7 @@ class CompanyController extends Controller
                             'address' => $item['address'],
                             'latitude' => $item['latitude'],
                             'longitude' => $item['longitude'],
-                            'timezone' => $item['longitude'],
+                            'timezone' => $item['timezone'],
                             'avatar_image' => $avatar_image,
                             'web_url' => $item['web_url'],
                             'recreational' => $item['license_type'] == 'hybrid' || $item['license_type'] == 'recreational' ? 1 : 0,
@@ -111,45 +111,139 @@ class CompanyController extends Controller
     }
 
     public function getAttributes(Request $request) {
-        $url = 'https://weedmaps.com/dispensaries/mr-niceguy-portland-se-holgate';
+        ini_set('max_execution_time', '0');
+        $companies = Company::all();
+        // $companies = Company::where('id', '>=', 14)->where('id', '<=', 15)->get();
+        foreach ($companies as $item) {            
+            $url = $item->web_url;
+            $curl = curl_init();
 
-        $curl = curl_init();
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => $url,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 0,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'GET',
+                CURLOPT_HTTPHEADER => array(
+                    'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:86.0) Gecko/20100101 Firefox/86.0',
+                    'Cookie: ajs_anonymous_id=%22d0377bd5-5fd8-4627-ac57-d417a8c33602%22; _pxhd=ca83b03c28a08347564a5e24a841db206c0c63d6c10c80ae2040e5064e9e2762:031d1b90-34e0-11eb-bd4f-19dade27ea77'
+                ),
+            ));
+            
+            $response = curl_exec($curl);
+            
+            curl_close($curl);
+            $dom = new Dom;
+            $dom->setOptions(
+                (new Options())->setRemoveScripts(false)
+            );
+            $dom->loadStr($response);
+            $script_tag = $dom->getElementById('__NEXT_DATA__');
+            // dump($script_tag); continue;
+            if($script_tag == null) break;
+            if($script_tag && $script_tag->text) {
+                $response_data = json_decode($script_tag->text, true);
+                if(isset($response_data['props']) && isset($response_data['props']['storeInitialState'])) {
+                    $company_data = $response_data['props']['storeInitialState']['listing']['listing'];
+                } else {
+                    $company_data = null;
+                }
+                if($company_data) {
+                    $item->state_license = $company_data['license_number'];
+                    $item->timezone = $company_data['timezone'];
+                    
+                    // Process Socials
+                    $facebook_url = $company_data['social']['facebook_id'];
+                    $instagram_url = $company_data['social']['instagram_id'];
+                    $twitter_url = $company_data['social']['twitter_id'];
+                    $youtube_url = $company_data['social']['youtube_ids'][0] ?? '';
+                    if($company_data['social']['facebook_id'] != '') {
+                        if(strpos($company_data['social']['facebook_id'], 'facebook') === false) {
+                            $facebook_url = 'facebook.com/'.$company_data['social']['facebook_id'];
+                        } else if(strpos($company_data['social']['facebook_id'], 'http') !== false) {
+                            $facebook_url = str_replace('https://', '', $company_data['social']['facebook_id']);
+                        }
+                    }
+                    if($company_data['social']['twitter_id'] != '') {
+                        if(strpos($company_data['social']['twitter_id'], 'twitter') === false) {
+                            $twitter_url = 'twitter.com/'.$company_data['social']['twitter_id'];
+                        } else if(strpos($company_data['social']['twitter_id'], 'http') !== false) {
+                            $twitter_url = str_replace('https://', '', $company_data['social']['twitter_id']);
+                        }
+                    }
+                    if($company_data['social']['instagram_id'] != '') {
+                        if(strpos($company_data['social']['instagram_id'], 'instagram') === false) {
+                            $instagram_url = 'instagram.com/'.$company_data['social']['instagram_id'];
+                        } else if(strpos($company_data['social']['instagram_id'], 'http') !== false) {
+                            $instagram_url = str_replace('https://', '', $company_data['social']['instagram_id']);
+                        }
+                    }
+                    if(count($company_data['social']['youtube_ids'])) {
+                        if(strpos($company_data['social']['youtube_ids'][0], 'youtube') === false) {
+                            $youtube_url = 'youtube.com/'.$company_data['social']['youtube_ids'][0];
+                        } else if(strpos($company_data['social']['youtube_ids'][0], 'http') !== false) {
+                            $youtube_url = str_replace('https://', '', $company_data['social']['youtube_ids'][0]);
+                        }
+                    }
+                    $item->website_url = $company_data['website'];
+                    $item->facebook_url = $facebook_url;
+                    $item->twitter_url = $twitter_url;
+                    $item->instagram_url = $instagram_url;
+                    
+                    $item->youtube_url = $youtube_url;
+                    // ATM Security
+                    $item->atm = $company_data['has_atm'] ? 1 : 0;
+                    $item->security = $company_data['has_security_guard'] ? 1 : 0;
+                    // Business Times
+                    $item->mon_open = $this->processBusnessHours($company_data['business_hours']['monday'], 'open');
+                    $item->mon_close = $this->processBusnessHours($company_data['business_hours']['monday'], 'close');
+                    $item->tue_open = $this->processBusnessHours($company_data['business_hours']['tuesday'], 'open');
+                    $item->tue_close = $this->processBusnessHours($company_data['business_hours']['tuesday'], 'close');
+                    $item->wed_open = $this->processBusnessHours($company_data['business_hours']['wednesday'], 'open');
+                    $item->wed_close = $this->processBusnessHours($company_data['business_hours']['wednesday'], 'close');
+                    $item->thu_open = $this->processBusnessHours($company_data['business_hours']['thursday'], 'open');
+                    $item->thu_close = $this->processBusnessHours($company_data['business_hours']['thursday'], 'close');
+                    $item->fri_open = $this->processBusnessHours($company_data['business_hours']['friday'], 'open');
+                    $item->fri_close = $this->processBusnessHours($company_data['business_hours']['friday'], 'close');
+                    $item->sat_open = $this->processBusnessHours($company_data['business_hours']['saturday'], 'open');
+                    $item->sat_close = $this->processBusnessHours($company_data['business_hours']['saturday'], 'close');
+                    $item->sun_open = $this->processBusnessHours($company_data['business_hours']['sunday'], 'open');
+                    $item->sun_close = $this->processBusnessHours($company_data['business_hours']['sunday'], 'close');
 
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => $url,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'GET',
-            CURLOPT_HTTPHEADER => array(
-                'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36',
-                'Cookie: ajs_anonymous_id=%22d0377bd5-5fd8-4627-ac57-d417a8c33602%22; _pxhd=ca83b03c28a08347564a5e24a841db206c0c63d6c10c80ae2040e5064e9e2762:031d1b90-34e0-11eb-bd4f-19dade27ea77'
-            ),
-        ));
-        
-        $response = curl_exec($curl);
-        
-        curl_close($curl);
-        $dom = new Dom;
-        $dom->setOptions(
-            (new Options())->setRemoveScripts(false)
-        );
-        $dom->loadStr($response);
-        $script_tag = $dom->getElementById('__NEXT_DATA__');
-        if($script_tag && $script_tag->text) {
-            $response_data = json_decode($script_tag->text, true);
-            if(isset($response_data['props']) && isset($response_data['props']['storeInitialState'])) {
-                $company_data = $response_data['props']['storeInitialState']['listing']['listing'];
-            } else {
-                $company_data = null;
-            }
-            if($company_data) {
-                dump($company_data);
-            }
+                    $item->mon_closed = $this->checkBusinessClosed($company_data['business_hours'], 'monday');
+                    $item->tue_closed = $this->checkBusinessClosed($company_data['business_hours'], 'tuesday');
+                    $item->wed_closed = $this->checkBusinessClosed($company_data['business_hours'], 'wednesday');
+                    $item->thu_closed = $this->checkBusinessClosed($company_data['business_hours'], 'thursday');
+                    $item->fri_closed = $this->checkBusinessClosed($company_data['business_hours'], 'friday');
+                    $item->sat_closed = $this->checkBusinessClosed($company_data['business_hours'], 'saturday');
+                    $item->sun_closed = $this->checkBusinessClosed($company_data['business_hours'], 'sunday');
+
+                    $item->save();
+                }
+            }      
         }
         
+    }
+
+    public function checkBusinessClosed($business_hours, $week_day) {
+        $result = null;
+        if(isset($business_hours[$week_day]['is_allday'])) {
+            $result = $business_hours[$week_day]['is_allday'] == true ? 1 : 2;
+        }
+        return $result;
+    }
+
+    public function processBusnessHours($week_day, $type) {
+        if(isset($week_day[$type])) {
+            $hour = $week_day[$type];
+            $hour = str_replace('am', ' AM', $hour);
+            $hour = str_replace('pm', ' PM', $hour);  
+        } else {
+            $hour = null;
+        }
+        return $hour;
     }
 }

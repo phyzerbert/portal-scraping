@@ -38,7 +38,7 @@ class CreateCompaniesTable extends Migration
             $table->string('facebook_url')->nullable();
             $table->string('twitter_url')->nullable();
             $table->string('instagram_url')->nullable();
-            $table->string('yourube_url')->nullable();
+            $table->string('youtube_url')->nullable();
             $table->string('suite')->nullable();
             $table->integer('store_type')->nullable();
             $table->boolean('recreational')->nullable();
