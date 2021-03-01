@@ -123,7 +123,7 @@ class CompanyController extends Controller
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36 OPR/74.0.3911.187",
         );
         // $companies = Company::all();
-        $companies = Company::where('id', '>=', 803)->where('id', '<=', 2000)->get();
+        $companies = Company::where('id', '>=', 855)->where('id', '<=', 2000)->get();
         $this->changeIpAddress();
         foreach ($companies as $item) {
             if(fmod($item->id, 10)) {
