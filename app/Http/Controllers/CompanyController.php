@@ -127,7 +127,7 @@ class CompanyController extends Controller
         $random_agent = $user_agents[array_rand($user_agents)];
         $this->changeIpAddress();
         foreach ($companies as $item) {
-            if(fmod($item->id, 10)) {
+            if(fmod($item->id, 10) == 0) {
                 $this->changeIpAddress();
                 $random_agent = $user_agents[array_rand($user_agents)];
             }
