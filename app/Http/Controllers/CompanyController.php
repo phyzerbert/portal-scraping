@@ -32,38 +32,40 @@ class CompanyController extends Controller
             $response = curl_exec($curl);
             curl_close($curl);
             $result = json_decode($response, true);
-            $companies = $result['data']['listings'];
-            foreach ($companies as $item) {
-                if($item['package_level'] != 'free') {
-                    $avatar_image = $item['avatar_image']['original_url'];
-                    if($avatar_image == 'https://images.weedmaps.com/original/image_missing.jpg') {
-                        $avatar_image = '';
+            if($result['data']) {
+                $companies = $result['data']['listings'];
+                foreach ($companies as $item) {
+                    if($item['package_level'] != 'free') {
+                        $avatar_image = $item['avatar_image']['original_url'];
+                        if($avatar_image == 'https://images.weedmaps.com/original/image_missing.jpg') {
+                            $avatar_image = '';
+                        }
+                        if($item['type'] == 'dispensary') $store_type = 1;
+                        if($item['type'] == 'delivery') $store_type = 2;
+                        Company::create([
+                            'name' => $item['name'],
+                            'username' => $item['slug'],
+                            'slug' => $item['slug'],
+                            'email' => $item['email'],
+                            'phone_number' => $item['phone_number'],
+                            'store_type' => $store_type,
+                            'package_level' => $item['package_level'],
+                            'city' => $item['city'],
+                            'state' => $item['state'],
+                            'postal' => $item['zip_code'],
+                            'address' => $item['address'],
+                            'latitude' => $item['latitude'],
+                            'longitude' => $item['longitude'],
+                            'timezone' => $item['longitude'],
+                            'avatar_image' => $avatar_image,
+                            'web_url' => $item['web_url'],
+                            'recreational' => $item['license_type'] == 'hybrid' || $item['license_type'] == 'recreational' ? 1 : 0,
+                            'medical' => $item['license_type'] == 'hybrid' || $item['license_type'] == 'medical' ? 1 : 0,
+                            'description' => strip_tags($item['intro_body']),
+                        ]);  
                     }
-                    if($item['type'] == 'dispensary') $store_type = 1;
-                    if($item['type'] == 'delivery') $store_type = 2;
-                    Company::create([
-                        'name' => $item['name'],
-                        'username' => $item['slug'],
-                        'slug' => $item['slug'],
-                        'email' => $item['email'],
-                        'phone_number' => $item['phone_number'],
-                        'store_type' => $store_type,
-                        'package_level' => $item['package_level'],
-                        'city' => $item['city'],
-                        'state' => $item['state'],
-                        'postal' => $item['zip_code'],
-                        'address' => $item['address'],
-                        'latitude' => $item['latitude'],
-                        'longitude' => $item['longitude'],
-                        'timezone' => $item['longitude'],
-                        'avatar_image' => $avatar_image,
-                        'web_url' => $item['web_url'],
-                        'recreational' => $item['license_type'] == 'hybrid' || $item['license_type'] == 'recreational' ? 1 : 0,
-                        'medical' => $item['license_type'] == 'hybrid' || $item['license_type'] == 'medical' ? 1 : 0,
-                        'description' => strip_tags($item['intro_body']),
-                    ]);  
+                    $count++;
                 }
-                $count++;
             }
             $page++;
         }
