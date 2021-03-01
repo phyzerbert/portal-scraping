@@ -12,6 +12,7 @@ use PHPHtmlParser\Options;
 class CompanyController extends Controller
 {
     public function getCompanies(Request $request) {
+        dd('Portal Scraping');
         ini_set('max_execution_time', '0');
         $total_companies = 7836;
         $count = 0;
@@ -122,16 +123,19 @@ class CompanyController extends Controller
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36 OPR/74.0.3911.187",
         );
         // $companies = Company::all();
-        $companies = Company::where('id', '>=', 58)->where('id', '<=', 100)->get();
+        $companies = Company::where('id', '>=', 803)->where('id', '<=', 2000)->get();
         foreach ($companies as $item) {            
             $url = $item->web_url;
             $curl = curl_init();
+            $proxy = 'de9.proxidize.com:40131';
             curl_setopt_array($curl, array(
                 CURLOPT_URL => $url,
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => '',
                 CURLOPT_MAXREDIRS => 10,
                 CURLOPT_TIMEOUT => 0,
+                CURLOPT_PROXY => $proxy,
+                CURLOPT_PROXYUSERPWD => "lySNUDU:NTrJJCv",
                 CURLOPT_FOLLOWLOCATION => true,
                 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                 CURLOPT_CUSTOMREQUEST => 'GET',
@@ -150,7 +154,7 @@ class CompanyController extends Controller
             );
             $dom->loadStr($response);
             $script_tag = $dom->getElementById('__NEXT_DATA__');
-            // dump($script_tag); continue;
+            // dump($response); continue;
             if($script_tag == null) {dd('Blocked Requestes');};
             if($script_tag && $script_tag->text) {
                 $response_data = json_decode($script_tag->text, true);
@@ -232,7 +236,7 @@ class CompanyController extends Controller
                     $item->save();
                 }
             }
-            sleep(8);
+            sleep(5);
         }
         
     }
