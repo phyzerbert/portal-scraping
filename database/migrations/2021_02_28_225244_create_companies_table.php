@@ -30,6 +30,7 @@ class CreateCompaniesTable extends Migration
             $table->string('postal')->nullable();
             $table->string('timezone')->nullable();
             $table->string('phone_number')->nullable();
+            $table->string('package_level')->nullable();
             $table->string('latitude')->nullable();
             $table->string('longitude')->nullable();
             $table->string('website_url')->nullable();
