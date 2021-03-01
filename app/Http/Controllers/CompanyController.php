@@ -73,6 +73,7 @@ class CompanyController extends Controller
         dd('Successfully Done');
     }
     public function downloadImages(Request $request) {
+        ini_set('max_execution_time', '0');
         $companies = Company::all();
         foreach ($companies as $item) {
             if($item->avatar_image != '') {           
