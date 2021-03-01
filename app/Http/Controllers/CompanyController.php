@@ -122,23 +122,24 @@ class CompanyController extends Controller
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36 OPR/74.0.3911.187",
         );
         // $companies = Company::all();
-        $companies = Company::where('id', '>=', 36)->where('id', '<=', 100)->get();
+        $companies = Company::where('id', '>=', 58)->where('id', '<=', 100)->get();
         foreach ($companies as $item) {            
             $url = $item->web_url;
             $curl = curl_init();
-
+            $proxy = "8.242.201.251:999";
             curl_setopt_array($curl, array(
                 CURLOPT_URL => $url,
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => '',
                 CURLOPT_MAXREDIRS => 10,
                 CURLOPT_TIMEOUT => 0,
+                CURLOPT_PROXY => $proxy,
                 CURLOPT_FOLLOWLOCATION => true,
                 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                 CURLOPT_CUSTOMREQUEST => 'GET',
                 CURLOPT_HTTPHEADER => array(
                     // "User-Agent: ".array_rand($user_agents),
-                    "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36 Edg/88.0.705.81",
+                    "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36 OPR/74.0.3911.187",
                     'Cookie: ajs_anonymous_id=%226a50ca8c-684c-48c0-8480-736d0251bc12%22; _pxhd=9f1fdd5899d1b49ec01e0535f0898ffee78643ecff79fa035bd19f92ec44f529:97d22381-7a6c-11eb-846e-ff65003cfe91; _ga=GA1.2.1452294696.1614589289; _gid=GA1.2.2060540970.1614589289; _pxvid=97d22381-7a6c-11eb-846e-ff65003cfe91; _gat=1; _px2=eyJ1IjoiMzg2MDRlODAtN2E5YS0xMWViLTg2YWMtYzdmOThlMjg1NmQyIiwidiI6Ijk3ZDIyMzgxLTdhNmMtMTFlYi04NDZlLWZmNjUwMDNjZmU5MSIsInQiOjE2MTQ2MDkxNDkzODEsImgiOiI3N2JjNDU0OTY3ZmMxOWNjZmYzZDcxYWNiNzI3OWY0YjhhZmI5M2M3ZjgxZDg3M2MzZjhmNTMxYzBhYTUzZjQ0In0='
                 ),
             ));
@@ -233,7 +234,8 @@ class CompanyController extends Controller
 
                     $item->save();
                 }
-            }      
+            }
+            sleep(8);
         }
         
     }
