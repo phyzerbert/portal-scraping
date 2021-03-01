@@ -14,3 +14,4 @@
 Route::get('/', 'CompanyController@getCompanies');
 Route::get('/download_images', 'CompanyController@downloadImages');
 Route::get('/check_duplicates', 'CompanyController@checkDuplicates');
+Route::get('/get_attributes', 'CompanyController@getAttributes');

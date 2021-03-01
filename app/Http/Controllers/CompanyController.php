@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 
 use App\Company;
 
+use PHPHtmlParser\Dom;
+use PHPHtmlParser\Options;
+
 class CompanyController extends Controller
 {
     public function getCompanies(Request $request) {
@@ -74,17 +77,22 @@ class CompanyController extends Controller
     }
     public function downloadImages(Request $request) {
         ini_set('max_execution_time', '0');
-        $companies = Company::all();
+        // $companies = Company::all();
+        $companies = Company::where('id', '>=', 4567)->get();
         foreach ($companies as $item) {
             if($item->avatar_image != '') {           
                 $url = $item->avatar_image;
                 $info = pathinfo($url);
-                $contents = file_get_contents($url);
-                $extension = isset($info['extension']) ? $info['extension'] : 'jpg';
-                $new_file_name = $item->username."_marijuana_".time();
-                $file = public_path('avatar/'.$new_file_name.".".$extension);
-                file_put_contents($file, $contents);  
-                $item->update(['image' => $new_file_name.".".$extension]);
+                try {
+                    $contents = file_get_contents($url);
+                    $extension = isset($info['extension']) ? $info['extension'] : 'jpg';
+                    $new_file_name = $item->username."_marijuana_".time();
+                    $file = public_path('avatar/'.$new_file_name.".".$extension);
+                    file_put_contents($file, $contents);  
+                    $item->update(['image' => $new_file_name.".".$extension]); //code...
+                } catch (\Throwable $th) {
+                    //throw $th;
+                }
             }
         }
     }
@@ -100,5 +108,48 @@ class CompanyController extends Controller
             }
         }
         dump('Done');
+    }
+
+    public function getAttributes(Request $request) {
+        $url = 'https://weedmaps.com/dispensaries/mr-niceguy-portland-se-holgate';
+
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'GET',
+            CURLOPT_HTTPHEADER => array(
+                'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36',
+                'Cookie: ajs_anonymous_id=%22d0377bd5-5fd8-4627-ac57-d417a8c33602%22; _pxhd=ca83b03c28a08347564a5e24a841db206c0c63d6c10c80ae2040e5064e9e2762:031d1b90-34e0-11eb-bd4f-19dade27ea77'
+            ),
+        ));
+        
+        $response = curl_exec($curl);
+        
+        curl_close($curl);
+        $dom = new Dom;
+        $dom->setOptions(
+            (new Options())->setRemoveScripts(false)
+        );
+        $dom->loadStr($response);
+        $script_tag = $dom->getElementById('__NEXT_DATA__');
+        if($script_tag && $script_tag->text) {
+            $response_data = json_decode($script_tag->text, true);
+            if(isset($response_data['props']) && isset($response_data['props']['storeInitialState'])) {
+                $company_data = $response_data['props']['storeInitialState']['listing']['listing'];
+            } else {
+                $company_data = null;
+            }
+            if($company_data) {
+                dump($company_data);
+            }
+        }
+        
     }
 }
