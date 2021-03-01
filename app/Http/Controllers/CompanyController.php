@@ -264,7 +264,7 @@ class CompanyController extends Controller
         return $hour;
     }
 
-    public function changeIpAddress(Request $request) {
+    public function changeIpAddress() {
         $curl = curl_init();
         curl_setopt_array($curl, array(
             CURLOPT_URL => 'https://trigger.macrodroid.com/9b00f894-38a8-465d-b740-c70ac0ef8c81/ip',
