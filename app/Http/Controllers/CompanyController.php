@@ -284,6 +284,9 @@ class CompanyController extends Controller
         ));
         $response = curl_exec($curl);
         curl_close($curl);
+        if($response == 'ok') {
+            dump('Proxy Ip address was changed.');
+        }
         sleep(60);
     }
 }
