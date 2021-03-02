@@ -284,6 +284,6 @@ class CompanyController extends Controller
         ));
         $response = curl_exec($curl);
         curl_close($curl);
-        sleep(20);
+        sleep(60);
     }
 }
