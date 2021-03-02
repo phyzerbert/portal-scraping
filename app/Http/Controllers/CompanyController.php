@@ -128,7 +128,6 @@ class CompanyController extends Controller
             $item = Company::whereNull('atm')->whereNull('security')->first();
             // dump($item->name); continue;
             if(fmod($item->id, 10) == 0) {
-                // $this->changeIpAddress();
                 $random_agent = $user_agents[array_rand($user_agents)];
             }
             $url = $item->web_url;
@@ -162,9 +161,8 @@ class CompanyController extends Controller
             $script_tag = $dom->getElementById('__NEXT_DATA__');
             // dump($response); continue;
             if($script_tag == null) {
-                dump('Blocked Requestes');
                 $this->changeIpAddress();
-                continue;
+                dd('Blocked Requestes');
             };
             if($script_tag && $script_tag->text) {
                 $response_data = json_decode($script_tag->text, true);
