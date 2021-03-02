@@ -169,6 +169,10 @@ class CompanyController extends Controller
             if($script_tag && $script_tag->text) {
                 $response_data = json_decode($script_tag->text, true);
                 if(isset($response_data['props']) && isset($response_data['props']['storeInitialState'])) {
+                    if(!isset($response_data['props']['storeInitialState']['listing']['listing'])) {
+                        $item->delete();
+                        continue;
+                    }
                     $company_data = $response_data['props']['storeInitialState']['listing']['listing'];
                 } else {
                     $company_data = null;
