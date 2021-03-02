@@ -122,11 +122,11 @@ class CompanyController extends Controller
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36 Edg/88.0.705.81",
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36 OPR/74.0.3911.187",
         );
-        // $companies = Company::all();
-        $companies = Company::where('id', '>=', 855)->where('id', '<=', 2000)->get();
         $random_agent = $user_agents[array_rand($user_agents)];
-        $this->changeIpAddress();
-        foreach ($companies as $item) {
+        // foreach ($companies as $item) {
+        $item = Company::whereNull('mon_open')->whereNull('mon_close')->whereNull('mon_closed')->first();
+        while ($item != null) {
+            $item = Company::whereNull('mon_open')->whereNull('mon_close')->whereNull('mon_closed')->first();
             if(fmod($item->id, 10) == 0) {
                 $this->changeIpAddress();
                 $random_agent = $user_agents[array_rand($user_agents)];
@@ -280,5 +280,6 @@ class CompanyController extends Controller
         ));
         $response = curl_exec($curl);
         curl_close($curl);
+        sleep(10);
     }
 }
