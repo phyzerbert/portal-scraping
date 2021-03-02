@@ -161,7 +161,12 @@ class CompanyController extends Controller
             $dom->loadStr($response);
             $script_tag = $dom->getElementById('__NEXT_DATA__');
             // dump($response); continue;
-            if($script_tag == null) {dd('Blocked Requestes');};
+            if($script_tag == null) {
+                dump('Blocked Requestes');
+                $this->changeIpAddress();
+                $random_agent = $user_agents[array_rand($user_agents)];
+                continue;
+            };
             if($script_tag && $script_tag->text) {
                 $response_data = json_decode($script_tag->text, true);
                 if(isset($response_data['props']) && isset($response_data['props']['storeInitialState'])) {
