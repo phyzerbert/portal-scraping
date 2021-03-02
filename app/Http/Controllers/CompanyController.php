@@ -124,9 +124,9 @@ class CompanyController extends Controller
         );
         $random_agent = $user_agents[array_rand($user_agents)];
         // foreach ($companies as $item) {
-        $item = Company::whereNull('mon_open')->whereNull('mon_close')->whereNull('mon_closed')->first();
+        $item = Company::whereNull('atm')->whereNull('security')->first();
         while ($item != null) {
-            $item = Company::whereNull('mon_open')->whereNull('mon_close')->whereNull('mon_closed')->first();
+            $item = Company::whereNull('atm')->whereNull('security')->first();
             if(fmod($item->id, 10) == 0) {
                 $this->changeIpAddress();
                 $random_agent = $user_agents[array_rand($user_agents)];
