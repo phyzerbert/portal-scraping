@@ -127,7 +127,6 @@ class CompanyController extends Controller
         $item = Company::whereNull('mon_open')->whereNull('mon_close')->whereNull('mon_closed')->first();
         while ($item != null) {
             $item = Company::whereNull('mon_open')->whereNull('mon_close')->whereNull('mon_closed')->first();
-            dump($item->name); continue;
             if(fmod($item->id, 10) == 0) {
                 $this->changeIpAddress();
                 $random_agent = $user_agents[array_rand($user_agents)];
