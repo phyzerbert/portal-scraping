@@ -127,6 +127,7 @@ class CompanyController extends Controller
         $item = Company::whereNull('mon_open')->whereNull('mon_close')->whereNull('mon_closed')->first();
         while ($item != null) {
             $item = Company::whereNull('mon_open')->whereNull('mon_close')->whereNull('mon_closed')->first();
+            dump($item->name); continue;
             if(fmod($item->id, 10) == 0) {
                 $this->changeIpAddress();
                 $random_agent = $user_agents[array_rand($user_agents)];
@@ -162,10 +163,7 @@ class CompanyController extends Controller
             $script_tag = $dom->getElementById('__NEXT_DATA__');
             // dump($response); continue;
             if($script_tag == null) {
-                dump('Blocked Requestes');
-                $this->changeIpAddress();
-                $random_agent = $user_agents[array_rand($user_agents)];
-                continue;
+                dd('Blocked Requestes');
             };
             if($script_tag && $script_tag->text) {
                 $response_data = json_decode($script_tag->text, true);
