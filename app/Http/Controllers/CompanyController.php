@@ -148,7 +148,7 @@ class CompanyController extends Controller
                 CURLOPT_CUSTOMREQUEST => 'GET',
                 CURLOPT_HTTPHEADER => array(
                     "User-Agent: ".$random_agent,
-                    // 'Cookie: ajs_anonymous_id=%22d0377bd5-5fd8-4627-ac57-d417a8c33602%22; _pxhd=ca83b03c28a08347564a5e24a841db206c0c63d6c10c80ae2040e5064e9e2762:031d1b90-34e0-11eb-bd4f-19dade27ea77'
+                    'Cookie: ajs_anonymous_id=%225f37a7a2-7bd5-4ae6-86fc-37715b307426%22; _pxhd=becf9468d8d37bf8387be44810e7e3270ae9ea187930907fab0d5b406f6f6c2b:893d6fa1-790e-11eb-902a-19ef19d96988; _ga=GA1.2.880904280.1614438892; _pxvid=893d6fa1-790e-11eb-902a-19ef19d96988; _wm_delivery_instructions=; _wm_pickup_instructions=; _gid=GA1.2.983172447.1614620382; ab.optOut=This-cookie-will-expire-in-2022; _gat=1; _pxff_rf=1; _pxff_fp=1; _px2=eyJ1IjoiMzk0ZWEwZTAtN2I3MC0xMWViLTllNmItMTc3MGIyMWEwNDU4IiwidiI6Ijg5M2Q2ZmExLTc5MGUtMTFlYi05MDJhLTE5ZWYxOWQ5Njk4OCIsInQiOjE1NjE1MDcyMDAwMDAsImgiOiIxNzUyYmUwNjQ2N2E5Y2RlYTIwZTJmMGFiYTY4NDFjYzFiYTQ2NmQ2NDZmZWY0Y2NkZDQ5OTczZjQyNTI2MGFiIn0='
                 ),
             ));
             
@@ -250,7 +250,7 @@ class CompanyController extends Controller
                     $item->save();
                 }
             }
-            sleep(5);
+            // sleep(5);
         }
         
     }
