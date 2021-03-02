@@ -123,10 +123,10 @@ class CompanyController extends Controller
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36 OPR/74.0.3911.187",
         );
         $random_agent = $user_agents[array_rand($user_agents)];
-        // foreach ($companies as $item) {
         $item = Company::whereNull('atm')->whereNull('security')->first();
         while ($item != null) {
             $item = Company::whereNull('atm')->whereNull('security')->first();
+            // dump($item->name); continue;
             if(fmod($item->id, 10) == 0) {
                 $this->changeIpAddress();
                 $random_agent = $user_agents[array_rand($user_agents)];
