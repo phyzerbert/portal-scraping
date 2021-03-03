@@ -259,6 +259,8 @@ class CompanyController extends Controller
         $result = null;
         if(isset($business_hours[$week_day]['is_allday'])) {
             $result = $business_hours[$week_day]['is_allday'] == true ? 1 : 2;
+        }else if(isset($business_hours[$week_day]['is_closed'])) {
+            $result = $business_hours[$week_day]['is_closed'] == true ? 2 : 1;
         }
         return $result;
     }
