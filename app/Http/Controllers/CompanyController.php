@@ -114,6 +114,13 @@ class CompanyController extends Controller
     public function getAttributes(Request $request) {
         ini_set('max_execution_time', '0');
 
+        $proxy_array = array(
+            ['proxy' => 'de9.proxidize.com:53615', 'userpwd' => 'MyvRkI5:NguoDPl', 'change_ip' => 'https://trigger.macrodroid.com/1065a9d0-7111-4f77-949a-4d8713f4a89e/ip'],
+            ['proxy' => 'de9.proxidize.com:38596', 'userpwd' => 'n1TPe9t:TlAn2Os', 'change_ip' => 'https://trigger.macrodroid.com/f1a555bd-0d85-423e-93e6-788f992a4c39/ip'],
+            ['proxy' => 'de9.proxidize.com:40131', 'userpwd' => 'lySNUDU:NTrJJCv', 'change_ip' => 'https://trigger.macrodroid.com/9b00f894-38a8-465d-b740-c70ac0ef8c81/ip'],
+            ['proxy' => 'de9.proxidize.com:42456', 'userpwd' => 'bjNEhbs:K09e1ko', 'change_ip' => 'https://trigger.macrodroid.com/af12fa69-d4ca-44ed-ad66-5cbea0bd32f2/ip'],
+        );
+
         $user_agents = array(
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36",
             "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36",
@@ -123,26 +130,25 @@ class CompanyController extends Controller
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36 OPR/74.0.3911.187",
         );
         $random_agent = $user_agents[array_rand($user_agents)];
-        dump($random_agent);
+        $random_proxy = $proxy_array[array_rand($proxy_array)];
         $item = Company::whereNull('atm')->whereNull('security')->first();
         while ($item != null) {
             $item = Company::whereNull('atm')->whereNull('security')->first();
             // dump($item->name); continue;
             if(fmod($item->id, 10) == 0) {
                 $random_agent = $user_agents[array_rand($user_agents)];
-                dump($random_agent);
+                $random_proxy = $proxy_array[array_rand($proxy_array)];
             }
             $url = $item->web_url;
             $curl = curl_init();
-            $proxy = 'de9.proxidize.com:40131';
             curl_setopt_array($curl, array(
                 CURLOPT_URL => $url,
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => '',
                 CURLOPT_MAXREDIRS => 10,
                 CURLOPT_TIMEOUT => 0,
-                CURLOPT_PROXY => $proxy,
-                CURLOPT_PROXYUSERPWD => "lySNUDU:NTrJJCv",
+                CURLOPT_PROXY => $random_proxy['proxy'],
+                CURLOPT_PROXYUSERPWD => $random_proxy['userpwd'],
                 CURLOPT_FOLLOWLOCATION => true,
                 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                 CURLOPT_CUSTOMREQUEST => 'GET',
@@ -163,8 +169,10 @@ class CompanyController extends Controller
             $script_tag = $dom->getElementById('__NEXT_DATA__');
             // dump($response); continue;
             if($script_tag == null) {
-                $this->changeIpAddress();
-                dd('Blocked Requestes');
+                $this->changeIpAddress($random_proxy['change_ip']);
+                dump('Blocked proxy '.$random_proxy['proxy']);
+                $random_proxy = $proxy_array[array_rand($proxy_array)];
+                continue;
             };
             if($script_tag && $script_tag->text) {
                 $response_data = json_decode($script_tag->text, true);
@@ -250,7 +258,7 @@ class CompanyController extends Controller
                     $item->save();
                 }
             }
-            sleep(10);
+            sleep(5);
         }
         
     }
@@ -276,10 +284,10 @@ class CompanyController extends Controller
         return $hour;
     }
 
-    public function changeIpAddress() {
+    public function changeIpAddress($url) {
         $curl = curl_init();
         curl_setopt_array($curl, array(
-            CURLOPT_URL => 'https://trigger.macrodroid.com/9b00f894-38a8-465d-b740-c70ac0ef8c81/ip',
+            CURLOPT_URL => $url,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
