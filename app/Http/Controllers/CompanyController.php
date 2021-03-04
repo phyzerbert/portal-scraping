@@ -301,6 +301,5 @@ class CompanyController extends Controller
         if($response == 'ok') {
             dump('Proxy Ip address was changed.');
         }
-        sleep(60);
     }
 }
