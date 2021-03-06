@@ -11,7 +11,7 @@ use PHPHtmlParser\Options;
 
 class BrandController extends Controller
 {
-    public function getBrand(Request $request) {
+    public function getBrands(Request $request) {
         dd('Brand Scraping');
         ini_set('max_execution_time', '0');
         $total_brands = 2422;
