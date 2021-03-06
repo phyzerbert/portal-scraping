@@ -116,14 +116,14 @@ class BrandController extends Controller
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36 OPR/74.0.3911.187",
         );
         $random_agent = $user_agents[array_rand($user_agents)];
-        // $random_proxy = $proxy_array[array_rand($proxy_array)];
+        $random_proxy = $proxy_array[array_rand($proxy_array)];
         $item = Brand::whereNull('website_url')->first();
         while ($item != null) {
             $item = Brand::whereNull('website_url')->first();
             // dump($item->name); continue;
             if(fmod($item->id, 10) == 0) {
                 $random_agent = $user_agents[array_rand($user_agents)];
-                // $random_proxy = $proxy_array[array_rand($proxy_array)];
+                $random_proxy = $proxy_array[array_rand($proxy_array)];
             }
             $url = $item->web_url;
             $curl = curl_init();
@@ -133,14 +133,14 @@ class BrandController extends Controller
                 CURLOPT_ENCODING => '',
                 CURLOPT_MAXREDIRS => 10,
                 CURLOPT_TIMEOUT => 0,
-                // CURLOPT_PROXY => $random_proxy['proxy'],
-                // CURLOPT_PROXYUSERPWD => $random_proxy['userpwd'],
+                CURLOPT_PROXY => $random_proxy['proxy'],
+                CURLOPT_PROXYUSERPWD => $random_proxy['userpwd'],
                 CURLOPT_FOLLOWLOCATION => true,
                 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                 CURLOPT_CUSTOMREQUEST => 'GET',
                 CURLOPT_HTTPHEADER => array(
                     "User-Agent: ".$random_agent,
-                    'Cookie: ajs_anonymous_id=%22d0377bd5-5fd8-4627-ac57-d417a8c33602%22; _pxhd=ca83b03c28a08347564a5e24a841db206c0c63d6c10c80ae2040e5064e9e2762:031d1b90-34e0-11eb-bd4f-19dade27ea77'
+                    
                 ),
             ));
             
@@ -155,11 +155,10 @@ class BrandController extends Controller
             $script_tag = $dom->getElementById('__NEXT_DATA__');
             // dump($response); continue;
             if($script_tag == null) {
-                dd($item);
-                // $this->changeIpAddress($random_proxy['change_ip']);
-                // dump('Blocked proxy '.$random_proxy['proxy']);
-                // $random_proxy = $proxy_array[array_rand($proxy_array)];
-                // continue;
+                $this->changeIpAddress($random_proxy['change_ip']);
+                dump('Blocked proxy '.$random_proxy['proxy']);
+                $random_proxy = $proxy_array[array_rand($proxy_array)];
+                continue;
             };
             if($script_tag && $script_tag->text) {
                 $response_data = json_decode($script_tag->text, true);
