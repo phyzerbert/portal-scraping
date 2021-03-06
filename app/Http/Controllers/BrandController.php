@@ -195,7 +195,7 @@ class BrandController extends Controller
 
     public function getSocialProfile($social_profiles, $key) {
         foreach ($social_profiles as $item) {
-            if($item['networkName'] == $key && !$item['externalId']) {
+            if($item['networkName'] == $key && $item['externalId']) {
                 return $item['externalId'];
             }
         }
