@@ -20,6 +20,6 @@ Route::get('/solve_closed', 'CompanyController@solveClosed');
 Route::get('/remove_null_address', 'CompanyController@removeNullAddress');
 Route::get('/change_business_time', 'CompanyController@changeBusinessTime');
 
-Route::get('/barnd/get_brands', 'BrandController@getBrands');
-Route::get('/barnd/download_images', 'BrandController@downloadImages');
-Route::get('/barnd/check_duplicates', 'BrandController@checkDuplicates');
+Route::get('/brand/get_brands', 'BrandController@getBrands');
+Route::get('/brand/download_images', 'BrandController@downloadImages');
+Route::get('/brand/check_duplicates', 'BrandController@checkDuplicates');
