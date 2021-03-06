@@ -178,6 +178,36 @@ class BrandController extends Controller
                     $twitter_url = $this->getSocialProfile($social_profiles, 'Twitter') ? 'twitter.com/'.$this->getSocialProfile($social_profiles, 'Twitter') : '';
                     $youtube_url = $this->getSocialProfile($social_profiles, 'Youtube') ? 'youtube.com/'.$this->getSocialProfile($social_profiles, 'Youtube') : '' ?? '';
                     $website_url = $this->getSocialProfile($social_profiles, 'Custom') ? $this->getSocialProfile($social_profiles, 'Custom') : '' ?? '';
+
+                    
+                    if($facebook_url != '') {
+                        if(strpos($facebook_url, 'facebook') === false) {
+                            $facebook_url = 'facebook.com/'.$facebook_url;
+                        } else if(strpos($facebook_url, 'http') !== false) {
+                            $facebook_url = str_replace('https://', '', $facebook_url);
+                        }
+                    }
+                    if($twitter_url != '') {
+                        if(strpos($twitter_url, 'twitter') === false) {
+                            $twitter_url = 'twitter.com/'.$twitter_url;
+                        } else if(strpos($twitter_url, 'http') !== false) {
+                            $twitter_url = str_replace('https://', '', $twitter_url);
+                        }
+                    }
+                    if($instagram_url != '') {
+                        if(strpos($instagram_url, 'instagram') === false) {
+                            $instagram_url = 'instagram.com/'.$instagram_url;
+                        } else if(strpos($instagram_url, 'http') !== false) {
+                            $instagram_url = str_replace('https://', '', $instagram_url);
+                        }
+                    }
+                    if($youtube_url != '') {
+                        if(strpos($youtube_url, 'youtube') === false) {
+                            $youtube_url = 'youtube.com/'.$youtube_url;
+                        } else if(strpos($youtube_url, 'http') !== false) {
+                            $youtube_url = str_replace('https://', '', $youtube_url);
+                        }
+                    }
                     
                     $item->website_url = $website_url;
                     $item->facebook_url = $facebook_url;
