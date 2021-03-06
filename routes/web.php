@@ -23,3 +23,4 @@ Route::get('/change_business_time', 'CompanyController@changeBusinessTime');
 Route::get('/brand/get_brands', 'BrandController@getBrands');
 Route::get('/brand/download_images', 'BrandController@downloadImages');
 Route::get('/brand/check_duplicates', 'BrandController@checkDuplicates');
+Route::get('/brand/get_attributes', 'BrandController@getAttributes');
