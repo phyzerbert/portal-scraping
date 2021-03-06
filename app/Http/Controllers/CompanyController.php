@@ -302,4 +302,38 @@ class CompanyController extends Controller
             dump('Proxy Ip address was changed.');
         }
     }
+
+    public function solveClosed() {
+        $day_array = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+        foreach ($day_array as $day) {
+          
+            $companies = Company::whereNull($day.'_open')->whereNull($day.'_close')->whereNull($day.'_closed')->get();
+            dump($day, $companies->count());
+            // foreach ($companies as $item) {
+            //     $item->update([$day.'_closed' => 2]);
+            // }  
+        }
+        dd('ok');
+    }
+
+    public function removeNullAddress() {
+        Company::where('address', 'null')->update(['address' => '']);
+        // foreach ($companies as $item) {
+        //     $item->update(['address' => '']);
+        // }
+        dd('ok');
+    }
+
+    public function changeBusinessTime() {
+        ini_set('max_execution_time', '0');
+        $day_array = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+        // foreach ($day_array as $day) {
+            $field = 'sun_close';
+            $companies = Company::whereTime($field, '<', '10:00:00')->get();
+            foreach ($companies as $item) {
+                $item->update([$field => '0'.$item[$field]]);
+            }
+        // }
+        dd('ok');
+    }
 }
