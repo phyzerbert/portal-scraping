@@ -12,7 +12,7 @@ use PHPHtmlParser\Options;
 class BrandController extends Controller
 {
     public function getBrands(Request $request) {
-        Brand::whereNotNull('website_url')->update(['website_url' => null]);
+        Brand::update(['website_url' => null]);
         dd('Brand Scraping');
         ini_set('max_execution_time', '0');
         $total_brands = 2422;
