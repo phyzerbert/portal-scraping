@@ -174,11 +174,11 @@ class BrandController extends Controller
                     
                     // Process Socials
                     $social_profiles = $brand_data['socialNetworkProfiles'];
-                    $facebook_url = $this->getSocialProfile($social_profiles, 'Facebook') ? 'facebook.com/'.$this->getSocialProfile($social_profiles, 'Facebook') : '';
-                    $instagram_url = $this->getSocialProfile($social_profiles, 'Instagram') ? 'instagram.com/'.$this->getSocialProfile($social_profiles, 'Instagram') : '';
-                    $twitter_url = $this->getSocialProfile($social_profiles, 'Twitter') ? 'twitter.com/'.$this->getSocialProfile($social_profiles, 'Twitter') : '';
-                    $youtube_url = $this->getSocialProfile($social_profiles, 'Youtube') ? 'youtube.com/'.$this->getSocialProfile($social_profiles, 'Youtube') : '' ?? '';
-                    $website_url = $this->getSocialProfile($social_profiles, 'Custom') ? $this->getSocialProfile($social_profiles, 'Custom') : '' ?? '';
+                    $facebook_url = $this->getSocialProfile($social_profiles, 'Facebook');
+                    $instagram_url = $this->getSocialProfile($social_profiles, 'Instagram');
+                    $twitter_url = $this->getSocialProfile($social_profiles, 'Twitter');
+                    $youtube_url = $this->getSocialProfile($social_profiles, 'Youtube');
+                    $website_url = $this->getSocialProfile($social_profiles, 'Custom');
 
                     
                     if($facebook_url != '') {
@@ -230,7 +230,7 @@ class BrandController extends Controller
                 return $item['externalId'];
             }
         }
-        return false;
+        return '';
     }
 
     public function changeIpAddress($url) {
