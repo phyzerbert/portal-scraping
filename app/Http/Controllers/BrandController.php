@@ -210,6 +210,7 @@ class BrandController extends Controller
                         }
                     }
                     
+                    
                     $item->website_url = $website_url;
                     $item->facebook_url = $facebook_url;
                     $item->twitter_url = $twitter_url;
