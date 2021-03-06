@@ -209,7 +209,7 @@ class BrandController extends Controller
                             $youtube_url = str_replace('https://', '', $youtube_url);
                         }
                     }
-                    
+
                     
                     $item->website_url = $website_url;
                     $item->facebook_url = $facebook_url;
@@ -235,6 +235,7 @@ class BrandController extends Controller
     }
 
     public function changeIpAddress($url) {
+        
         $curl = curl_init();
         curl_setopt_array($curl, array(
             CURLOPT_URL => $url,
