@@ -5,16 +5,17 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\Company;
-
+use App\Proxy;
+use Illuminate\Support\Facades\Storage;
 use PHPHtmlParser\Dom;
 use PHPHtmlParser\Options;
 
 class CompanyController extends Controller
 {
     public function getCompanies(Request $request) {
-        dd('Portal Scraping');
+        dump('Portal Scraping');
         ini_set('max_execution_time', '0');
-        $total_companies = 7836;
+        $total_companies = 8565;
         $count = 0;
         $page = 1;
         while ($count <= $total_companies) {
@@ -32,7 +33,7 @@ class CompanyController extends Controller
                     'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36',
                     'Cookie: _pxhd=8704ef463b86d3167229f7530be0d779c85ce222dea13a6154ab6dd336788a76:4da7aee0-34d7-11eb-ae42-5faf642e9d49; ajs_anonymous_id=%22d0377bd5-5fd8-4627-ac57-d417a8c33602%22'
                 ),
-            ));            
+            ));
             $response = curl_exec($curl);
             curl_close($curl);
             $result = json_decode($response, true);
@@ -66,14 +67,14 @@ class CompanyController extends Controller
                             'recreational' => $item['license_type'] == 'hybrid' || $item['license_type'] == 'recreational' ? 1 : 0,
                             'medical' => $item['license_type'] == 'hybrid' || $item['license_type'] == 'medical' ? 1 : 0,
                             'description' => strip_tags($item['intro_body']),
-                        ]);  
+                        ]);
                     }
                     $count++;
                 }
             }
             $page++;
         }
-        
+
         dd('Successfully Done');
     }
     public function downloadImages(Request $request) {
@@ -81,7 +82,7 @@ class CompanyController extends Controller
         // $companies = Company::all();
         $companies = Company::where('id', '>=', 4567)->get();
         foreach ($companies as $item) {
-            if($item->avatar_image != '') {           
+            if($item->avatar_image != '') {
                 $url = $item->avatar_image;
                 $info = pathinfo($url);
                 try {
@@ -89,7 +90,7 @@ class CompanyController extends Controller
                     $extension = isset($info['extension']) ? $info['extension'] : 'jpg';
                     $new_file_name = $item->username."_marijuana_".time();
                     $file = public_path('avatar/'.$new_file_name.".".$extension);
-                    file_put_contents($file, $contents);  
+                    file_put_contents($file, $contents);
                     $item->update(['image' => $new_file_name.".".$extension]); //code...
                 } catch (\Throwable $th) {
                     //throw $th;
@@ -114,12 +115,19 @@ class CompanyController extends Controller
     public function getAttributes(Request $request) {
         ini_set('max_execution_time', '0');
 
-        $proxy_array = array(
-            ['proxy' => 'de9.proxidize.com:53615', 'userpwd' => 'MyvRkI5:NguoDPl', 'change_ip' => 'https://trigger.macrodroid.com/1065a9d0-7111-4f77-949a-4d8713f4a89e/ip'],
-            ['proxy' => 'de9.proxidize.com:38596', 'userpwd' => 'n1TPe9t:TlAn2Os', 'change_ip' => 'https://trigger.macrodroid.com/f1a555bd-0d85-423e-93e6-788f992a4c39/ip'],
-            ['proxy' => 'de9.proxidize.com:40131', 'userpwd' => 'lySNUDU:NTrJJCv', 'change_ip' => 'https://trigger.macrodroid.com/9b00f894-38a8-465d-b740-c70ac0ef8c81/ip'],
-            ['proxy' => 'de9.proxidize.com:42456', 'userpwd' => 'bjNEhbs:K09e1ko', 'change_ip' => 'https://trigger.macrodroid.com/af12fa69-d4ca-44ed-ad66-5cbea0bd32f2/ip'],
-        );
+        // $proxy_array = array(
+        //     ['proxy' => 'de9.proxidize.com:53615', 'userpwd' => 'MyvRkI5:NguoDPl', 'change_ip' => 'https://trigger.macrodroid.com/1065a9d0-7111-4f77-949a-4d8713f4a89e/ip'],
+        //     ['proxy' => 'de9.proxidize.com:38596', 'userpwd' => 'n1TPe9t:TlAn2Os', 'change_ip' => 'https://trigger.macrodroid.com/f1a555bd-0d85-423e-93e6-788f992a4c39/ip'],
+        //     ['proxy' => 'de9.proxidize.com:40131', 'userpwd' => 'lySNUDU:NTrJJCv', 'change_ip' => 'https://trigger.macrodroid.com/9b00f894-38a8-465d-b740-c70ac0ef8c81/ip'],
+        //     ['proxy' => 'de9.proxidize.com:42456', 'userpwd' => 'bjNEhbs:K09e1ko', 'change_ip' => 'https://trigger.macrodroid.com/af12fa69-d4ca-44ed-ad66-5cbea0bd32f2/ip'],
+        // );
+
+        // $proxy_array = array(
+        //     ['proxy' => '107.175.119.248:6776', 'userpwd' => 'cbjzmfsd:p6i6wu38ko3q', 'change_ip' => 'https://trigger.macrodroid.com/1065a9d0-7111-4f77-949a-4d8713f4a89e/ip'],
+        //     ['proxy' => '144.168.143.29:7576', 'userpwd' => 'cbjzmfsd:p6i6wu38ko3q', 'change_ip' => 'https://trigger.macrodroid.com/f1a555bd-0d85-423e-93e6-788f992a4c39/ip'],
+        //     ['proxy' => '144.168.151.254:6298', 'userpwd' => 'cbjzmfsd:p6i6wu38ko3q', 'change_ip' => 'https://trigger.macrodroid.com/9b00f894-38a8-465d-b740-c70ac0ef8c81/ip'],
+        //     ['proxy' => '138.128.97.53:7643', 'userpwd' => 'cbjzmfsd:p6i6wu38ko3q', 'change_ip' => 'https://trigger.macrodroid.com/af12fa69-d4ca-44ed-ad66-5cbea0bd32f2/ip'],
+        // );
 
         $user_agents = array(
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36",
@@ -130,14 +138,20 @@ class CompanyController extends Controller
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36 OPR/74.0.3911.187",
         );
         $random_agent = $user_agents[array_rand($user_agents)];
-        $random_proxy = $proxy_array[array_rand($proxy_array)];
+
+        // $random_proxy = $proxy_array[array_rand($proxy_array)];
+
+        $random_proxy = Proxy::inRandomOrder()->first();
+
+
         $item = Company::whereNull('atm')->whereNull('security')->first();
         while ($item != null) {
             $item = Company::whereNull('atm')->whereNull('security')->first();
             // dump($item->name); continue;
             if(fmod($item->id, 10) == 0) {
                 $random_agent = $user_agents[array_rand($user_agents)];
-                $random_proxy = $proxy_array[array_rand($proxy_array)];
+                // $random_proxy = $proxy_array[array_rand($proxy_array)];
+                $random_proxy = Proxy::inRandomOrder()->first();
             }
             $url = $item->web_url;
             $curl = curl_init();
@@ -157,9 +171,10 @@ class CompanyController extends Controller
                     // 'Cookie: ajs_anonymous_id=%22d0377bd5-5fd8-4627-ac57-d417a8c33602%22; _pxhd=ca83b03c28a08347564a5e24a841db206c0c63d6c10c80ae2040e5064e9e2762:031d1b90-34e0-11eb-bd4f-19dade27ea77'
                 ),
             ));
-            
+
             $response = curl_exec($curl);
-            
+
+            dd($url);
             curl_close($curl);
             $dom = new Dom;
             $dom->setOptions(
@@ -169,9 +184,10 @@ class CompanyController extends Controller
             $script_tag = $dom->getElementById('__NEXT_DATA__');
             // dump($response); continue;
             if($script_tag == null) {
-                $this->changeIpAddress($random_proxy['change_ip']);
                 dump('Blocked proxy '.$random_proxy['proxy']);
-                $random_proxy = $proxy_array[array_rand($proxy_array)];
+                // $this->changeIpAddress($random_proxy['change_ip']);
+                // $random_proxy = $proxy_array[array_rand($proxy_array)];
+                $random_proxy = Proxy::inRandomOrder()->first();
                 continue;
             };
             if($script_tag && $script_tag->text) {
@@ -188,7 +204,7 @@ class CompanyController extends Controller
                 if($company_data) {
                     $item->state_license = $company_data['license_number'];
                     $item->timezone = $company_data['timezone'];
-                    
+
                     // Process Socials
                     $facebook_url = $company_data['social']['facebook_id'];
                     $instagram_url = $company_data['social']['instagram_id'];
@@ -226,7 +242,7 @@ class CompanyController extends Controller
                     $item->facebook_url = $facebook_url;
                     $item->twitter_url = $twitter_url;
                     $item->instagram_url = $instagram_url;
-                    
+
                     $item->youtube_url = $youtube_url;
                     // ATM Security
                     $item->atm = $company_data['has_atm'] ? 1 : 0;
@@ -260,7 +276,7 @@ class CompanyController extends Controller
             }
             sleep(5);
         }
-        
+
     }
 
     public function checkBusinessClosed($business_hours, $week_day) {
@@ -277,7 +293,7 @@ class CompanyController extends Controller
         if(isset($week_day[$type])) {
             $hour = $week_day[$type];
             $hour = str_replace('am', ' AM', $hour);
-            $hour = str_replace('pm', ' PM', $hour);  
+            $hour = str_replace('pm', ' PM', $hour);
         } else {
             $hour = null;
         }
@@ -306,12 +322,12 @@ class CompanyController extends Controller
     public function solveClosed() {
         $day_array = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
         foreach ($day_array as $day) {
-          
+
             $companies = Company::whereNull($day.'_open')->whereNull($day.'_close')->whereNull($day.'_closed')->get();
             dump($day, $companies->count());
             // foreach ($companies as $item) {
             //     $item->update([$day.'_closed' => 2]);
-            // }  
+            // }
         }
         dd('ok');
     }
@@ -335,5 +351,21 @@ class CompanyController extends Controller
             }
         // }
         dd('ok');
+    }
+
+    public function importProxies() {
+        $data = Storage::disk('public')->get('/proxies/proxy.json');
+        $proxies = json_decode($data, true);
+        foreach ($proxies as $item) {
+            Proxy::create([
+                'username' => $item['username'],
+                'password' => $item['password'],
+                'address' => $item['proxy_address'],
+                'port' => $item['ports']['http'],
+                'country_code' => $item['country_code'],
+                'city_name' => $item['city_name'],
+            ]);
+        }
+        dd('Successfully imported!');
     }
 }

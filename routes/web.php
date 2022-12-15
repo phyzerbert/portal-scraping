@@ -19,6 +19,7 @@ Route::get('/get_attributes', 'CompanyController@getAttributes');
 Route::get('/solve_closed', 'CompanyController@solveClosed');
 Route::get('/remove_null_address', 'CompanyController@removeNullAddress');
 Route::get('/change_business_time', 'CompanyController@changeBusinessTime');
+Route::get('/import_proxies', 'CompanyController@importProxies');
 
 Route::get('/brand/get_brands', 'BrandController@getBrands');
 Route::get('/brand/download_images', 'BrandController@downloadImages');

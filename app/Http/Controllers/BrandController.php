@@ -32,7 +32,7 @@ class BrandController extends Controller
                 CURLOPT_HTTPHEADER => array(
                     'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36',
                 ),
-            ));            
+            ));
             $response = curl_exec($curl);
             curl_close($curl);
             $result = json_decode($response, true);
@@ -49,13 +49,13 @@ class BrandController extends Controller
                         'slug' => $item['slug'],
                         'avatar_image' => $avatar_image,
                         'web_url' => 'https://weedmaps.com/brands/'.$item['slug'],
-                    ]);  
+                    ]);
                     $count++;
                 }
             }
             $page++;
         }
-        
+
         dd('Successfully Done');
     }
     public function downloadImages(Request $request) {
@@ -64,7 +64,7 @@ class BrandController extends Controller
         $brands = Brand::where('id', '>=', 4567)->get();
         $item = Brand::whereNull('image')->first();
         while ($item != null) {
-            if($item->avatar_image != '') {           
+            if($item->avatar_image != '') {
                 $url = $item->avatar_image;
                 $info = pathinfo($url);
                 try {
@@ -72,7 +72,7 @@ class BrandController extends Controller
                     $extension = isset($info['extension']) ? $info['extension'] : 'jpg';
                     $new_file_name = $item->username."_marijuana_".time();
                     $file = public_path('brands/'.$new_file_name.".".$extension);
-                    file_put_contents($file, $contents);  
+                    file_put_contents($file, $contents);
                     $item->update(['image' => $new_file_name.".".$extension]);
                 } catch (\Throwable $th) {
                     throw $th;
@@ -140,12 +140,12 @@ class BrandController extends Controller
                 CURLOPT_CUSTOMREQUEST => 'GET',
                 CURLOPT_HTTPHEADER => array(
                     "User-Agent: ".$random_agent,
-                    
+
                 ),
             ));
-            
+
             $response = curl_exec($curl);
-            
+
             curl_close($curl);
             $dom = new Dom;
             $dom->setOptions(
@@ -172,7 +172,7 @@ class BrandController extends Controller
                     $brand_data = null;
                 }
                 if($brand_data) {
-                    
+
                     // Process Socials
                     $social_profiles = $brand_data['socialNetworkProfiles'];
                     $facebook_url = $this->getSocialProfile($social_profiles, 'Facebook');
@@ -181,7 +181,7 @@ class BrandController extends Controller
                     $youtube_url = $this->getSocialProfile($social_profiles, 'Youtube');
                     $website_url = $this->getSocialProfile($social_profiles, 'Custom');
 
-                    
+
                     if($facebook_url != '') {
                         if(strpos($facebook_url, 'facebook') === false) {
                             $facebook_url = 'facebook.com/'.$facebook_url;
@@ -211,7 +211,7 @@ class BrandController extends Controller
                         }
                     }
 
-                    
+
                     $item->website_url = $website_url;
                     $item->facebook_url = $facebook_url;
                     $item->twitter_url = $twitter_url;
@@ -223,7 +223,7 @@ class BrandController extends Controller
             }
             sleep(5);
         }
-        
+
     }
 
     public function getSocialProfile($social_profiles, $key) {
