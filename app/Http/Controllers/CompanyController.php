@@ -15,13 +15,23 @@ class CompanyController extends Controller
     public function getCompanies(Request $request) {
         dump('Portal Scraping');
         ini_set('max_execution_time', '0');
-        $total_companies = 8565;
+        $user_agents = array(
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36",
+            "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:86.0) Gecko/20100101 Firefox/86.0",
+            "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36 Edg/88.0.705.81",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36 OPR/74.0.3911.187",
+        );
+        
+        $total_companies = 4270;
         $count = 0;
         $page = 1;
         while ($count <= $total_companies) {
             $curl = curl_init();
+            $random_agent = $user_agents[array_rand($user_agents)];
             curl_setopt_array($curl, array(
-                CURLOPT_URL => "https://api-g.weedmaps.com/discovery/v1/listings?page_size=150&page=$page&filter%5Bany_retailer_services%5D%5B%5D=storefront",
+                CURLOPT_URL => "https://api-g.weedmaps.com/discovery/v1/listings?page_size=150&page=$page&filter%5Bany_retailer_services%5D%5B%5D=delivery",
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => '',
                 CURLOPT_MAXREDIRS => 10,
@@ -30,12 +40,15 @@ class CompanyController extends Controller
                 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                 CURLOPT_CUSTOMREQUEST => 'GET',
                 CURLOPT_HTTPHEADER => array(
-                    'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36',
+                    "User-Agent: $random_agent",
                     'Cookie: _pxhd=8704ef463b86d3167229f7530be0d779c85ce222dea13a6154ab6dd336788a76:4da7aee0-34d7-11eb-ae42-5faf642e9d49; ajs_anonymous_id=%22d0377bd5-5fd8-4627-ac57-d417a8c33602%22'
                 ),
             ));
             $response = curl_exec($curl);
             curl_close($curl);
+            if (strpos($response, '406 Not Acceptable') !== false) {
+                dd('Page Not Acceptable');
+            }
             $result = json_decode($response, true);
             if(isset($result['data'])) {
                 $companies = $result['data']['listings'];
@@ -72,7 +85,10 @@ class CompanyController extends Controller
                     $count++;
                 }
             }
+            sleep(3);
             $page++;
+            dump("Page: $page");
+            dump("Count: $count");
         }
 
         dd('Successfully Done');
@@ -80,7 +96,7 @@ class CompanyController extends Controller
     public function downloadImages(Request $request) {
         ini_set('max_execution_time', '0');
         // $companies = Company::all();
-        $companies = Company::where('id', '>=', 4567)->get();
+        $companies = Company::where('id', '>=', 1)->get();
         foreach ($companies as $item) {
             if($item->avatar_image != '') {
                 $url = $item->avatar_image;
@@ -89,9 +105,9 @@ class CompanyController extends Controller
                     $contents = file_get_contents($url);
                     $extension = isset($info['extension']) ? $info['extension'] : 'jpg';
                     $new_file_name = $item->username."_marijuana_".time();
-                    $file = public_path('avatar/'.$new_file_name.".".$extension);
+                    $file = public_path('avatar/companies/'.$new_file_name.".".$extension);
                     file_put_contents($file, $contents);
-                    $item->update(['image' => $new_file_name.".".$extension]); //code...
+                    $item->update(['image' => $new_file_name.".".$extension]);
                 } catch (\Throwable $th) {
                     //throw $th;
                 }
@@ -174,7 +190,7 @@ class CompanyController extends Controller
 
             $response = curl_exec($curl);
 
-            dd($url);
+
             curl_close($curl);
             $dom = new Dom;
             $dom->setOptions(
@@ -343,18 +359,18 @@ class CompanyController extends Controller
     public function changeBusinessTime() {
         ini_set('max_execution_time', '0');
         $day_array = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
-        // foreach ($day_array as $day) {
-            $field = 'sun_close';
+        foreach ($day_array as $day) {
+            $field = $day . "_close";
             $companies = Company::whereTime($field, '<', '10:00:00')->get();
             foreach ($companies as $item) {
                 $item->update([$field => '0'.$item[$field]]);
             }
-        // }
+        }
         dd('ok');
     }
 
     public function importProxies() {
-        $data = Storage::disk('public')->get('/proxies/proxy.json');
+        $data = Storage::disk('public')->get('/proxies/proxy-2.json');
         $proxies = json_decode($data, true);
         foreach ($proxies as $item) {
             Proxy::create([

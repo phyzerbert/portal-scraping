@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\Brand;
+use App\Proxy;
 
 use PHPHtmlParser\Dom;
 use PHPHtmlParser\Options;
@@ -13,7 +14,7 @@ class BrandController extends Controller
 {
     public function getBrands(Request $request) {
         Brand::whereNotNull('id')->update(['website_url' => null]);
-        dd('Brand Scraping');
+        dump('Brand Scraping');
         ini_set('max_execution_time', '0');
         $total_brands = 2422;
         $count = 0;
@@ -61,7 +62,7 @@ class BrandController extends Controller
     public function downloadImages(Request $request) {
         ini_set('max_execution_time', '0');
         // $brands = Brand::all();
-        $brands = Brand::where('id', '>=', 4567)->get();
+        $brands = Brand::where('id', '>=', 1)->get();
         $item = Brand::whereNull('image')->first();
         while ($item != null) {
             if($item->avatar_image != '') {
@@ -71,7 +72,7 @@ class BrandController extends Controller
                     $contents = file_get_contents($url);
                     $extension = isset($info['extension']) ? $info['extension'] : 'jpg';
                     $new_file_name = $item->username."_marijuana_".time();
-                    $file = public_path('brands/'.$new_file_name.".".$extension);
+                    $file = public_path('avatar/brands/'.$new_file_name.".".$extension);
                     file_put_contents($file, $contents);
                     $item->update(['image' => $new_file_name.".".$extension]);
                 } catch (\Throwable $th) {
@@ -100,12 +101,12 @@ class BrandController extends Controller
     public function getAttributes(Request $request) {
         ini_set('max_execution_time', '0');
 
-        $proxy_array = array(
-            ['proxy' => 'de9.proxidize.com:53615', 'userpwd' => 'MyvRkI5:NguoDPl', 'change_ip' => 'https://trigger.macrodroid.com/1065a9d0-7111-4f77-949a-4d8713f4a89e/ip'],
-            ['proxy' => 'de9.proxidize.com:38596', 'userpwd' => 'n1TPe9t:TlAn2Os', 'change_ip' => 'https://trigger.macrodroid.com/f1a555bd-0d85-423e-93e6-788f992a4c39/ip'],
-            ['proxy' => 'de9.proxidize.com:40131', 'userpwd' => 'lySNUDU:NTrJJCv', 'change_ip' => 'https://trigger.macrodroid.com/9b00f894-38a8-465d-b740-c70ac0ef8c81/ip'],
-            ['proxy' => 'de9.proxidize.com:42456', 'userpwd' => 'bjNEhbs:K09e1ko', 'change_ip' => 'https://trigger.macrodroid.com/af12fa69-d4ca-44ed-ad66-5cbea0bd32f2/ip'],
-        );
+        // $proxy_array = array(
+        //     ['proxy' => 'de9.proxidize.com:53615', 'userpwd' => 'MyvRkI5:NguoDPl', 'change_ip' => 'https://trigger.macrodroid.com/1065a9d0-7111-4f77-949a-4d8713f4a89e/ip'],
+        //     ['proxy' => 'de9.proxidize.com:38596', 'userpwd' => 'n1TPe9t:TlAn2Os', 'change_ip' => 'https://trigger.macrodroid.com/f1a555bd-0d85-423e-93e6-788f992a4c39/ip'],
+        //     ['proxy' => 'de9.proxidize.com:40131', 'userpwd' => 'lySNUDU:NTrJJCv', 'change_ip' => 'https://trigger.macrodroid.com/9b00f894-38a8-465d-b740-c70ac0ef8c81/ip'],
+        //     ['proxy' => 'de9.proxidize.com:42456', 'userpwd' => 'bjNEhbs:K09e1ko', 'change_ip' => 'https://trigger.macrodroid.com/af12fa69-d4ca-44ed-ad66-5cbea0bd32f2/ip'],
+        // );
 
         $user_agents = array(
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36",
@@ -116,14 +117,17 @@ class BrandController extends Controller
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36 OPR/74.0.3911.187",
         );
         $random_agent = $user_agents[array_rand($user_agents)];
-        $random_proxy = $proxy_array[array_rand($proxy_array)];
+        // $random_proxy = $proxy_array[array_rand($proxy_array)];
+        $random_proxy = Proxy::inRandomOrder()->first();
         $item = Brand::whereNull('website_url')->first();
         while ($item != null) {
             $item = Brand::whereNull('website_url')->first();
             // dump($item->name); continue;
             if(fmod($item->id, 10) == 0) {
                 $random_agent = $user_agents[array_rand($user_agents)];
-                $random_proxy = $proxy_array[array_rand($proxy_array)];
+                // $random_proxy = $proxy_array[array_rand($proxy_array)];
+
+                $random_proxy = Proxy::inRandomOrder()->first();
             }
             $url = $item->web_url;
             $curl = curl_init();
@@ -155,9 +159,11 @@ class BrandController extends Controller
             $script_tag = $dom->getElementById('__NEXT_DATA__');
             // dump($response); continue;
             if($script_tag == null) {
-                $this->changeIpAddress($random_proxy['change_ip']);
                 dump('Blocked proxy '.$random_proxy['proxy']);
-                $random_proxy = $proxy_array[array_rand($proxy_array)];
+                // $this->changeIpAddress($random_proxy['change_ip']);
+                // $random_proxy = $proxy_array[array_rand($proxy_array)];
+
+                $random_proxy = Proxy::inRandomOrder()->first();
                 continue;
             };
             if($script_tag && $script_tag->text) {

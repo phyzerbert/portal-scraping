@@ -67,6 +67,7 @@ class CreateCompaniesTable extends Migration
             $table->string('sun_open')->nullable();
             $table->string('sun_close')->nullable();
             $table->integer('sun_closed')->nullable();
+            $table->boolean('imported')->nullable();
             $table->timestamps();
         });
     }
